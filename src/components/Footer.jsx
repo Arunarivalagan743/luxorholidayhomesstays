@@ -44,6 +44,8 @@ const Footer = () => {
     villas: false,
     luxorInfo: false,
   });
+  const [showDevelopersDropdown, setShowDevelopersDropdown] = useState(false);
+  const [activeDeveloper, setActiveDeveloper] = useState(null);
   
   // Use our custom hook to detect if calendar modal is open
   const isCalendarModalOpen = useCalendarModalDetection();
@@ -126,6 +128,35 @@ const Footer = () => {
       }));
     }
   };
+
+  const toggleDevelopersDropdown = (e) => {
+    if (isMobile) {
+      e.preventDefault();
+      setShowDevelopersDropdown(prev => !prev);
+    }
+  };
+
+  const handleDeveloperClick = (e, name) => {
+    if (isMobile) {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveDeveloper(prev => prev === name ? null : name);
+    }
+  };
+
+  // Close developers dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDevelopersDropdown && !event.target.closest('.developers-link-container')) {
+        setShowDevelopersDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showDevelopersDropdown]);
 
   // If calendar modal is open, don't render the footer at all
   if (isCalendarModalOpen) {
@@ -492,6 +523,174 @@ const Footer = () => {
               Terms & Conditions
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4AF37] transition-all duration-300 group-hover:w-full"></span>
             </Link>
+          </li>
+          <li className="relative group developers-link-container">
+            <span 
+              className="text-sm hover:text-[#D4AF37] transition-colors relative group cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                if (isMobile) {
+                  toggleDevelopersDropdown(e);
+                }
+              }}
+            >
+              Developers
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4AF37] transition-all duration-300 group-hover:w-full"></span>
+            </span>
+            
+            {/* Developer names tooltip/dropdown - Mobile optimization */}
+            <div 
+              className={`absolute ${isMobile ? 'bottom-[calc(100%+10px)] right-0 left-auto' : 'bottom-full left-1/2 transform -translate-x-1/2'} mb-2 w-64 
+                ${isMobile 
+                  ? (showDevelopersDropdown ? 'opacity-100 visible' : 'opacity-0 invisible') 
+                  : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'} 
+                transition-all duration-300 z-[100]`}
+            >
+              <div className="bg-white rounded-md shadow-lg p-3 border border-gray-200">
+                <div className="flex flex-col space-y-3">
+                  <div className="text-center">
+                    <p className="text-[#D4AF37] font-medium text-xs">Our Development Team</p>
+                    <hr className="my-1 border-gray-200" />
+                  </div>
+                  
+                  {/* Ramji B */}
+                  <div className="relative group/dev">
+                    <div 
+                      className="text-xs text-gray-700 hover:text-[#D4AF37] transition-colors flex items-center cursor-pointer"
+                      onClick={(e) => handleDeveloperClick(e, 'ramji')}
+                    >
+                      <span className="w-2 h-2 bg-[#D4AF37] rounded-full mr-2"></span>
+                      Ramji B - Full Stack Developer
+                    </div>
+                    
+                    {/* Contact info on hover/tap */}
+                    <div 
+                      className={`absolute ${isMobile ? 'top-full left-0 mt-1' : 'left-full top-0 ml-2'} w-52 
+                        ${isMobile 
+                          ? (activeDeveloper === 'ramji' ? 'opacity-100 visible' : 'opacity-0 invisible') 
+                          : 'opacity-0 invisible group-hover/dev:opacity-100 group-hover/dev:visible'} 
+                        transition-all duration-200 bg-white rounded-md shadow-md p-2 border border-gray-200 z-20`}
+                    >
+                      <div className="flex flex-col space-y-1.5">
+                        <a 
+                          href="https://www.linkedin.com/in/ramji-b-613539308" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+                          </svg>
+                          LinkedIn Profile
+                        </a>
+                        <a 
+                          href="mailto:itzrvm2337@gmail.com" 
+                          className="text-xs text-gray-600 hover:text-[#D4AF37] flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          itzrvm2337@gmail.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Arun A */}
+                  <div className="relative group/dev">
+                    <div 
+                      className="text-xs text-gray-700 hover:text-[#D4AF37] transition-colors flex items-center cursor-pointer"
+                      onClick={(e) => handleDeveloperClick(e, 'arun')}
+                    >
+                      <span className="w-2 h-2 bg-[#D4AF37] rounded-full mr-2"></span>
+                      Arun A - MERN Stack Developer
+                    </div>
+                    
+                    {/* Contact info on hover/tap */}
+                    <div 
+                      className={`absolute ${isMobile ? 'top-full left-0 mt-1' : 'left-full top-0 ml-2'} w-52 
+                        ${isMobile 
+                          ? (activeDeveloper === 'arun' ? 'opacity-100 visible' : 'opacity-0 invisible') 
+                          : 'opacity-0 invisible group-hover/dev:opacity-100 group-hover/dev:visible'} 
+                        transition-all duration-200 bg-white rounded-md shadow-md p-2 border border-gray-200 z-20`}
+                    >
+                      <div className="flex flex-col space-y-1.5">
+                        <a 
+                          href="https://www.linkedin.com/in/arun-a-25b6a5289" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+                          </svg>
+                          LinkedIn Profile
+                        </a>
+                        <a 
+                          href="mailto:arunarivalagan774@gmail.com" 
+                          className="text-xs text-gray-600 hover:text-[#D4AF37] flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          arunarivalagan774@gmail.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Aravinth Rajan K */}
+                  <div className="relative group/dev">
+                    <div 
+                      className="text-xs text-gray-700 hover:text-[#D4AF37] transition-colors flex items-center cursor-pointer"
+                      onClick={(e) => handleDeveloperClick(e, 'aravinth')}
+                    >
+                      <span className="w-2 h-2 bg-[#D4AF37] rounded-full mr-2"></span>
+                      Aravinth Rajan K - Frontend Developer
+                    </div>
+                    
+                    {/* Contact info on hover/tap */}
+                    <div 
+                      className={`absolute ${isMobile ? 'top-full left-0 mt-1' : 'left-full top-0 ml-2'} w-52 
+                        ${isMobile 
+                          ? (activeDeveloper === 'aravinth' ? 'opacity-100 visible' : 'opacity-0 invisible') 
+                          : 'opacity-0 invisible group-hover/dev:opacity-100 group-hover/dev:visible'} 
+                        transition-all duration-200 bg-white rounded-md shadow-md p-2 border border-gray-200 z-20`}
+                    >
+                      <div className="flex flex-col space-y-1.5">
+                        <a 
+                          href="https://www.linkedin.com/in/aravinthrajan-k-819664290" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+                          </svg>
+                          LinkedIn Profile
+                        </a>
+                        <a 
+                          href="mailto:aravinthrajan390@gmail.com" 
+                          className="text-xs text-gray-600 hover:text-[#D4AF37] flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          aravinthrajan390@gmail.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-r border-b border-gray-200"></div>
+              </div>
+            </div>
           </li>
           <li>
             <a 
