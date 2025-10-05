@@ -888,6 +888,13 @@ export default function EnhancedBookingForm({
       })
       return
     }
+    
+    // Calculate breakdown components for passing to booking review
+    const basePrice = basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? basePriceData.finalPrice : 0;
+    const serviceFee = Math.round(basePrice * 0.05);
+    const taxAmount = Math.round((basePrice + serviceFee) * 0.18);
+    const calculatedTotal = Math.round(basePrice + serviceFee + taxAmount);
+    
     // Prepare booking data for review page
     const bookingData = {
       villaId: villa?._id || villa?.id,
@@ -906,10 +913,20 @@ export default function EnhancedBookingForm({
       checkOutTime: extractRailwayTime(checkOutTime),
       originalAmount: basePriceData.originalPrice,
       finalAmount: basePriceData.finalPrice,
-      totalAmount: totalAmount,
+      totalAmount: calculatedTotal, // Use the calculated total that matches breakdown
       hasOffers: basePriceData.hasOffers,
       pricingWithOffers: pricingWithOffers,
       offerSavings: basePriceData.originalPrice - basePriceData.finalPrice,
+      // Add breakdown components
+      basePrice: basePrice,
+      serviceFee: serviceFee,
+      taxAmount: taxAmount,
+      breakdown: {
+        basePrice,
+        serviceFee,
+        taxAmount,
+        total: calculatedTotal
+      },
       // Add more fields as needed
     };
     // Navigate to review page
@@ -1661,6 +1678,7 @@ export default function EnhancedBookingForm({
           </div>
         </div>
 
+
         <div className="flex items-center justify-between mb-6">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center">
@@ -2378,70 +2396,78 @@ export default function EnhancedBookingForm({
                 </div>
               </div>
 
-              {totalAmount > 0 && (
-                <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#BFA181]/10 rounded-xl p-4 border border-[#D4AF37]/20">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">
-                        {totalNights} night{totalNights > 1 ? "s" : ""}
-                      </span>
-                      <div className="flex flex-col items-end">
-                        {basePriceData.hasOffers && basePriceData.originalPrice !== basePriceData.finalPrice ? (
-                          <>
-                            <span className="text-gray-400 line-through text-xs">
-                              ₹{basePriceData.originalPrice && !isNaN(basePriceData.originalPrice) ? 
-                                basePriceData.originalPrice.toLocaleString() : "0"}
+              {totalAmount > 0 && (() => {
+                // Calculate consistent breakdown values using the same logic as calculateTotalAmount
+                const basePrice = basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? basePriceData.finalPrice : 0;
+                const serviceFee = Math.round(basePrice * 0.05);
+                const taxAmount = Math.round((basePrice + serviceFee) * 0.18);
+                const calculatedTotal = Math.round(basePrice + serviceFee + taxAmount);
+                
+                // Store these values for passing to booking review
+                const breakdownData = {
+                  basePrice,
+                  serviceFee,
+                  taxAmount,
+                  calculatedTotal
+                };
+                
+                return (
+                  <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#BFA181]/10 rounded-xl p-4 border border-[#D4AF37]/20">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {totalNights} night{totalNights > 1 ? "s" : ""}
+                        </span>
+                        <div className="flex flex-col items-end">
+                          {basePriceData.hasOffers && basePriceData.originalPrice !== basePriceData.finalPrice ? (
+                            <>
+                              <span className="text-gray-400 line-through text-xs">
+                                ₹{basePriceData.originalPrice && !isNaN(basePriceData.originalPrice) ? 
+                                  basePriceData.originalPrice.toLocaleString() : "0"}
+                              </span>
+                              <span className="font-medium text-green-600">
+                                ₹{basePrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs text-green-600 font-medium">Offer Applied!</span>
+                            </>
+                          ) : (
+                            <span className="font-medium">
+                              ₹{basePrice.toLocaleString()}
                             </span>
-                            <span className="font-medium text-green-600">
-                              ₹{basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? 
-                                basePriceData.finalPrice.toLocaleString() : "0"}
-                            </span>
-                            <span className="text-xs text-green-600 font-medium">Offer Applied!</span>
-                          </>
-                        ) : (
-                          <span className="font-medium">
-                            ₹{basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? 
-                              basePriceData.finalPrice.toLocaleString() : "0"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Service fee (5%)</span>
-                      <span className="font-medium">
-                        ₹{basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? 
-                          Math.round(basePriceData.finalPrice * 0.05).toLocaleString() : 
-                          "0"
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Taxes (18%)</span>
-                      <span className="font-medium">
-                        ₹{basePriceData.finalPrice && !isNaN(basePriceData.finalPrice) ? 
-                          Math.round((basePriceData.finalPrice + Math.round(basePriceData.finalPrice * 0.05)) * 0.18).toLocaleString() :
-                          "0"
-                        }
-                      </span>
-                    </div>
-                    {basePriceData.hasOffers && (
-                      <div className="bg-green-50 rounded-lg p-2 mt-2">
-                        <div className="text-xs text-green-700 font-medium text-center">
-                          🎉 You saved ₹{basePriceData.originalPrice && basePriceData.finalPrice && 
-                            !isNaN(basePriceData.originalPrice) && !isNaN(basePriceData.finalPrice) ? 
-                            (basePriceData.originalPrice - basePriceData.finalPrice).toLocaleString() : "0"} with current offers!
+                          )}
                         </div>
                       </div>
-                    )}
-                    <div className="border-t border-[#D4AF37]/30 pt-2 mt-2">
-                      <div className="flex justify-between font-bold">
-                        <span className="text-gray-900">Total Amount</span>
-                        <span className="text-[#D4AF37]">₹{(totalAmount && !isNaN(totalAmount) ? totalAmount : 0).toLocaleString()}</span>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Service fee (5%)</span>
+                        <span className="font-medium">
+                          ₹{serviceFee.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Taxes (18%)</span>
+                        <span className="font-medium">
+                          ₹{taxAmount.toLocaleString()}
+                        </span>
+                      </div>
+                      {basePriceData.hasOffers && (
+                        <div className="bg-green-50 rounded-lg p-2 mt-2">
+                          <div className="text-xs text-green-700 font-medium text-center">
+                            🎉 You saved ₹{basePriceData.originalPrice && basePriceData.finalPrice && 
+                              !isNaN(basePriceData.originalPrice) && !isNaN(basePriceData.finalPrice) ? 
+                              (basePriceData.originalPrice - basePriceData.finalPrice).toLocaleString() : "0"} with current offers!
+                          </div>
+                        </div>
+                      )}
+                      <div className="border-t border-[#D4AF37]/30 pt-2 mt-2">
+                        <div className="flex justify-between font-bold">
+                          <span className="text-gray-900">Total Amount</span>
+                          <span className="text-[#D4AF37]">₹{calculatedTotal.toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>

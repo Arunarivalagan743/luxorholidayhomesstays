@@ -392,7 +392,18 @@ export default function BookingReview() {
       }
 
       let calculatedTotalAmount = editedData.totalAmount
-      if (!calculatedTotalAmount) {
+      let basePrice = 0
+      let serviceFee = 0
+      let taxAmount = 0
+      
+      // Try to use breakdown data from booking form first
+      if (editedData.breakdown) {
+        basePrice = editedData.breakdown.basePrice
+        serviceFee = editedData.breakdown.serviceFee
+        taxAmount = editedData.breakdown.taxAmount
+        calculatedTotalAmount = editedData.breakdown.total
+      } else if (!calculatedTotalAmount) {
+        // Fallback calculation if breakdown data not available
         const nights = Math.max(
           1,
           Math.ceil(
@@ -410,8 +421,9 @@ export default function BookingReview() {
         // For now, using weekday price as base
         totalPrice = weekdayPrice * nights
 
-        const serviceFee = Math.round(totalPrice * 0.05)
-        const taxAmount = Math.round((totalPrice + serviceFee) * 0.18)
+        basePrice = totalPrice
+        serviceFee = Math.round(totalPrice * 0.05)
+        taxAmount = Math.round((totalPrice + serviceFee) * 0.18)
         calculatedTotalAmount = Math.round(totalPrice + serviceFee + taxAmount)
         
         console.log("Amount calculation breakdown:")
@@ -422,6 +434,11 @@ export default function BookingReview() {
         console.log("- Service fee (5%):", serviceFee)
         console.log("- Tax amount (18%):", taxAmount)
         console.log("- Final calculated total:", calculatedTotalAmount)
+      } else {
+        // If total amount exists but no breakdown, derive breakdown from finalAmount
+        basePrice = editedData.finalAmount || 0
+        serviceFee = Math.round(basePrice * 0.05)
+        taxAmount = Math.round((basePrice + serviceFee) * 0.18)
       }
 
       const authToken = localStorage.getItem("authToken") || localStorage.getItem("token")
@@ -438,8 +455,7 @@ export default function BookingReview() {
             Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
-            // amount: calculatedTotalAmount, // Original amount - commented for testing
-            amount: 1, // Testing with ₹1 for now
+            amount: calculatedTotalAmount, // Use the actual calculated amount
             currency: "INR",
             villaName: editedData.villaName,
             villaId: editedData.villaId,
