@@ -527,7 +527,27 @@
         window.progressInterval = progressInterval;
       }
       
+      // Optimize preloader to show content faster
+      document.addEventListener('DOMContentLoaded', function() {
+        const progressBar = document.getElementById('preloaderProgress');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressBar && progressText) {
+          progressBar.style.width = '80%';
+          progressText.textContent = '80%';
+        }
+        
+        // Try to hide preloader more aggressively
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+          hidePreloader();
+        }
+      });
+      
       window.addEventListener('load', function() {
+        hidePreloader();
+      });
+      
+      function hidePreloader() {
         const preloader = document.getElementById('preloader');
         const root = document.getElementById('root');
         const progressBar = document.getElementById('preloaderProgress');
@@ -535,15 +555,17 @@
         
         if (preloader && root) {
           // Complete the progress bar
-          progressBar.style.width = '100%';
-          progressText.textContent = '100%';
+          if (progressBar && progressText) {
+            progressBar.style.width = '100%';
+            progressText.textContent = '100%';
+          }
           
           // Clear any existing interval
           if (window.progressInterval) {
             clearInterval(window.progressInterval);
           }
           
-          // Wait for the progress bar to reach 100%
+          // Reduce timeout to show content faster
           setTimeout(function() {
             preloader.classList.add('preloader-hide');
             root.style.opacity = '1';
@@ -551,11 +573,13 @@
             // Hide completely after transition completes
             setTimeout(function() {
               preloader.style.display = 'none';
-              // Don't change the background color
-            }, 200);
-          }, 300);
+            }, 100); // Reduced from 200ms
+          }, 150); // Reduced from 300ms
         }
-      });
+      }
+      
+      // Fallback to hide preloader after a maximum time
+      setTimeout(hidePreloader, 2000);
     </script>
   </body>
 </html>

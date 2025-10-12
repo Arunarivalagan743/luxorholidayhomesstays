@@ -1,60 +1,67 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import Navbar from './components/Navbar'
 import {Route, Routes, useLocation, Navigate} from 'react-router-dom'
-import SEOHead from './components/SEO/SEOHead';
-import Home from './pages/Home'
-import Footer from './components/Footer'
-import AllRooms from './pages/AllRooms'
-import VillaDetails from './pages/VillaDetails'
-import RoomDetails from './pages/RoomDetails'
-import MyBookings from './pages/MyBookings'
-import BookingDetails from './pages/BookingDetails';
 import { FaWhatsapp } from 'react-icons/fa';
-import Contact from './pages/Contact'
-import Partners from './components/Footer/Partners'
-import About from './pages/About';
-import HelpCenter from './components/Footer/Help-center'
-import Safety from './components/Footer/safety-info'
-import NavbarGallery from './components/Navbar/Gallery'
-import AboutGallery from './components/About/Gallery'
-import LanguageSelector from './components/LanguageSelector'
-import { LanguageProvider } from './context/LanguageContext';
-import SearchResults from './pages/SearchResults';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import SignIn from './pages/SignIn';
-import OTPVerification from './pages/OTPVerification';
-import PhotoGallery from './pages/PhotoGallery';
-import GuestReviews from './components/Footer/GuestReviews';
-import PrivacyPolicy from './components/Footer/PrivacyPolicy';
-import TermsConditions from './components/Footer/TermsConditions';
-import ForgotPassword from './pages/ForgotPassword';
-import VerifyOTP from './pages/VerifyOTP';
-import AdminDashboard from './pages/Dashboard';
-import VillaManagement from './pages/Admin/VillaManagement';
-import BookingManagement from './pages/Admin/BookingManagement';
-import UserManagement from './pages/Admin/userManagement';
-import PhoneUserManagement from './pages/Admin/PhoneUserManagement';
-import Layout from './components/Adminpanel/Layout';
-import ProtectedRoute from './components/Adminpanel/Protected';
-import VillaInfoManagementPage from './pages/Admin/VillaInfoManagementPage';
-import AmenitiesManagement from './pages/Admin/AmenitiesManagement';
-import NewsletterManagement from './pages/Admin/NewsletterManagement';
-import UserProfilesManagement from './pages/Admin/UserProfilesManagement';
-import ManualBookingManagement from './pages/Admin/ManualBookingManagement';
-import OffersManagement from './pages/Admin/OffersManagement';
-import BlockedDatesManagement from './pages/Admin/BlockedDatesManagement';
 import "./App.css";
 import { ToastProvider } from './context/ToastContext';
 import Toast from './components/Toast';
+import { LanguageProvider } from './context/LanguageContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+// Always loaded components
+import Navbar from './components/Navbar'
+import SEOHead from './components/SEO/SEOHead';
+import Footer from './components/Footer'
 import AuthGuard from './components/AuthGuard';
-import Profile from './pages/Profile';
-import CompleteProfile from './pages/Completeprofile';
-import CancelRequestsManagementPage from './pages/Admin/CancelRequestsManagementPage';
-import BookingReview from './pages/BookingReview';
-// import AmenitiesManagement from './pages/Admin/AmenitiesManagement';
+import Layout from './components/Adminpanel/Layout';
+import ProtectedRoute from './components/Adminpanel/Protected';
+import LanguageSelector from './components/LanguageSelector'
+
+// Lazy loaded components - main pages
+const Home = lazy(() => import('./pages/Home'))
+const AllRooms = lazy(() => import('./pages/AllRooms'))
+const VillaDetails = lazy(() => import('./pages/VillaDetails'))
+const RoomDetails = lazy(() => import('./pages/RoomDetails'))
+const MyBookings = lazy(() => import('./pages/MyBookings'))
+const BookingDetails = lazy(() => import('./pages/BookingDetails'));
+const Contact = lazy(() => import('./pages/Contact'))
+const About = lazy(() => import('./pages/About'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
+const SignIn = lazy(() => import('./pages/SignIn'));
+const OTPVerification = lazy(() => import('./pages/OTPVerification'));
+const PhotoGallery = lazy(() => import('./pages/PhotoGallery'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const VerifyOTP = lazy(() => import('./pages/VerifyOTP'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CompleteProfile = lazy(() => import('./pages/Completeprofile'));
+const BookingReview = lazy(() => import('./pages/BookingReview'));
+
+// Lazy loaded components - admin pages
+const AdminDashboard = lazy(() => import('./pages/Dashboard'));
+const VillaManagement = lazy(() => import('./pages/Admin/VillaManagement'));
+const BookingManagement = lazy(() => import('./pages/Admin/BookingManagement'));
+const UserManagement = lazy(() => import('./pages/Admin/userManagement'));
+const PhoneUserManagement = lazy(() => import('./pages/Admin/PhoneUserManagement'));
+const VillaInfoManagementPage = lazy(() => import('./pages/Admin/VillaInfoManagementPage'));
+const AmenitiesManagement = lazy(() => import('./pages/Admin/AmenitiesManagement'));
+const NewsletterManagement = lazy(() => import('./pages/Admin/NewsletterManagement'));
+const UserProfilesManagement = lazy(() => import('./pages/Admin/UserProfilesManagement'));
+const ManualBookingManagement = lazy(() => import('./pages/Admin/ManualBookingManagement'));
+const OffersManagement = lazy(() => import('./pages/Admin/OffersManagement'));
+const BlockedDatesManagement = lazy(() => import('./pages/Admin/BlockedDatesManagement'));
+const CancelRequestsManagementPage = lazy(() => import('./pages/Admin/CancelRequestsManagementPage'));
+
+// Lazy loaded components - footer pages
+const Partners = lazy(() => import('./components/Footer/Partners'))
+const HelpCenter = lazy(() => import('./components/Footer/Help-center'))
+const Safety = lazy(() => import('./components/Footer/safety-info'))
+const NavbarGallery = lazy(() => import('./components/Navbar/Gallery'))
+const AboutGallery = lazy(() => import('./components/About/Gallery'))
+const GuestReviews = lazy(() => import('./components/Footer/GuestReviews'));
+const PrivacyPolicy = lazy(() => import('./components/Footer/PrivacyPolicy'));
+const TermsConditions = lazy(() => import('./components/Footer/TermsConditions'));
 function App() {
   const { pathname } = useLocation();
   
@@ -104,7 +111,8 @@ function App() {
     document.body.style.width = '';
   }, [pathname]);
   
-  const isOwnerPath = pathname.includes("owner");
+  // Check if current path is in the admin section - use startsWith for more precise matching
+  const isOwnerPath = pathname.startsWith('/owner');
   
   // Default SEO configuration for the entire app
   const getDefaultSEO = () => {
@@ -142,6 +150,16 @@ function App() {
     return seoProps;
   };
 
+  // Loading fallback component
+  const LoadingFallback = () => (
+    <div className="flex h-[50vh] items-center justify-center">
+      <div className="animate-pulse flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-t-4 border-b-4 border-primary rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
+  
   return (
     <AuthProvider>
       <ToastProvider>
@@ -150,17 +168,18 @@ function App() {
           <div className="w-full max-w-[100vw] overflow-x-hidden">
             {!isOwnerPath && <Navbar />}
             <div className='min-h-[90vh] pt-[3rem] md:pt-[4rem]'>
-              <Routes>
-              {/* Public routes */}
-              <Route path='/' element={<Home/>} />
-              <Route path='/rooms' element={<AllRooms/>} />
-              <Route path='/rooms/:id' element={<RoomDetails/>} />
-              <Route path='/villa/:id' element={<VillaDetails/>} />
-              <Route path='/villas/:id' element={<VillaDetails/>} /> {/* Support both URL patterns */}
-              <Route path='/search-results' element={<SearchResults/>} />
-              <Route path='/contact' element={<Contact />} />
-              <Route path='/partners' element={<Partners />} />
-              <Route path='/h' element={<HelpCenter />} />
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                {/* Public routes */}
+                <Route path='/' element={<Home/>} />
+                <Route path='/rooms' element={<AllRooms/>} />
+                <Route path='/rooms/:id' element={<RoomDetails/>} />
+                <Route path='/villa/:id' element={<VillaDetails/>} />
+                <Route path='/villas/:id' element={<VillaDetails/>} /> {/* Support both URL patterns */}
+                <Route path='/search-results' element={<SearchResults/>} />
+                <Route path='/contact' element={<Contact />} />
+                <Route path='/partners' element={<Partners />} />
+                <Route path='/h' element={<HelpCenter />} />
               <Route path='/si' element={<Safety/>} />
                    <Route path='/profile' element={<Profile/>} />
               <Route path="/complete-profile" element={
@@ -316,8 +335,9 @@ function App() {
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+              </Suspense>
           </div>
-          <Footer />
+          {!isOwnerPath && <Footer />}
 
           {/* WhatsApp button and Language Selector with React Portal to ensure they stay on top of everything */}
           {createPortal(

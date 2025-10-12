@@ -1,0 +1,24 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Backend API
+        run: |
+          echo "Pinging backend at $(date)"
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://luxorholidayhomesstays-backend.onrender.com/api/villas)
+          echo "Response status code: $response"
+          
+          if [ $response -eq 200 ] || [ $response -eq 304 ]; then
+            echo "✅ Backend is alive and responding"
+          else
+            echo "⚠️ Backend returned status code: $response"
+          fi

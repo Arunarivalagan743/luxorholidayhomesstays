@@ -6,27 +6,23 @@ import Swal from "sweetalert2"
 import { Calendar, Users, MapPin, Phone, Clock, Edit3, Save, X } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 
-// Import villa images
-import AP1 from "/AmrithPalace/AP8.jpg"
-import EC1 from "/eastcoastvilla/EC1.jpg"
-import anandvilla1 from "/empireanandvillasamudra/anandvilla1.jpg"
-import RW1 from "/ramwatervilla/RW1.jpg"
-import LAV1 from "/LavishVilla 1/lvone18.jpg"
-import LAV2 from "/LavishVilla 2/lvtwo22.jpg"
-import LAV3 from "/LavishVilla 3/lvthree5.jpg"
 
-// Villa image mapping
+// Import with lazy loading
+import OptimizedImage from "../components/OptimizedImage"
+
+// Define paths instead of importing directly
 const villaImageMap = {
-  "Amrith Palace": AP1,
-  "East Coast Villa": EC1,
-  "Empire Anand Villa Samudra": anandvilla1,
-  "Ram Water Villa": RW1,
-  "Lavish Villa I": LAV1,
-  "Lavish Villa II": LAV2,
-  "Lavish Villa III": LAV3,
-  default: AP1,
+  "Amrith Palace": "/AmrithPalace/AP8.jpg",
+  "East Coast Villa": "/eastcoastvilla/EC1.jpg",
+  "Empire Anand Villa Samudra": "/empireanandvillasamudra/anandvilla1.jpg",
+  "Ram Water Villa": "/ramwatervilla/RW1.jpg",
+  "Lavish Villa I": "/LavishVilla 1/lvone18.jpg",
+  "Lavish Villa II": "/LavishVilla 2/lvtwo22.jpg",
+  "Lavish Villa III": "/LavishVilla 3/lvthree5.jpg",
+  default: "/AmrithPalace/AP8.jpg",
 }
 
+// Optimized Razorpay script loading with defer attribute and error handling
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (window.Razorpay) {
@@ -34,9 +30,12 @@ const loadRazorpayScript = () => {
     }
     const script = document.createElement("script")
     script.src = "https://checkout.razorpay.com/v1/checkout.js"
-    script.src = "https://checkout.razorpay.com/v1/checkout.js"
+    script.defer = true // Add defer attribute to non-blocking loading
     script.onload = () => resolve(true)
-    script.onerror = () => resolve(false)
+    script.onerror = () => {
+      console.error("Failed to load Razorpay script")
+      resolve(false)
+    }
     document.body.appendChild(script)
   })
 }
@@ -624,11 +623,6 @@ export default function BookingReview() {
           } finally {
             setPaymentProcessing(false)
           }
-        },
-        modal: {
-          ondismiss: () => {
-            setPaymentProcessing(false)
-          },
         },
         prefill: {
           name: editedData.guestName || "",

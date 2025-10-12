@@ -1070,8 +1070,13 @@ const VillaSwiper = () => {
     // Subtle brightness adjustments instead of blur for clearer viewing
     const filter = isCenter ? "none" : isAdjacent ? "brightness(0.98)" : "brightness(0.92)"
     // Position and style slides for optimal visibility on desktop
+    // Combine transform properties - add rotation for adjacent slides
+    const transformValue = isAdjacent
+      ? `translateX(${translateX}px) scale(${scale}) rotate(${position * 0.5}deg)`
+      : `translateX(${translateX}px) scale(${scale})`;
+    
     return {
-      transform: `translateX(${translateX}px) scale(${scale})`,
+      transform: transformValue,
       opacity,
       zIndex,
       transition: isAnimating
@@ -1090,10 +1095,6 @@ const VillaSwiper = () => {
       // Apply subtle borders to distinguish slides
       border: !isCenter ? "1px solid rgba(0,0,0,0.05)" : "none",
       borderRadius: !isCenter ? "12px" : "0",
-      // Combine the transform properties into one
-      transform: isAdjacent
-        ? `translateX(${translateX}px) scale(${scale}) rotate(${position * 0.5}deg)`
-        : `translateX(${translateX}px) scale(${scale})`,
     }
   }
 
