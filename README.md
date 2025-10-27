@@ -1,4 +1,4 @@
-# Luxor Holiday Home Stays - Villa Booking Platform
+# Luxor Holiday Home Stays - Villa Booking Platform -TN
 
 A premium villa booking platform built with React, featuring luxurious holiday accommodations in Chennai and Pondicherry. This full-stack application provides an elegant booking experience with comprehensive admin management capabilities.
 
@@ -61,4 +61,5 @@ Luxor Holiday Home Stays is a sophisticated vacation rental platform specializin
 - **Firebase Auth** - Google OAuth integration
 - **JWT Tokens** - Secure API authentication
 - **Protected Routes** - Role-based access control
+
 
